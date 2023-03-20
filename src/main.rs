@@ -30,24 +30,24 @@ fn main() {
     let masked_image_output = image_reader::make_image_from_vec(masked_image);
     masked_image_output.save("out.png").unwrap();
 
-
-
-    let (_chunk_infos, flooded_mask) = image_splitter::flood_mask(image_mask);
+    let flooded_mask = image_splitter::flood_mask(image_mask);
 
     let colors: [(u8, u8, u8, u8); 6] = [
-            (255, 0, 0, 255),
-            (0, 255, 0, 255),
-            (0, 0, 255, 255),
-            (255, 255, 0, 255),
-            (0, 255, 255, 255),
-            (255, 0, 255, 255),
+        (255, 0, 0, 255),
+        (0, 255, 0, 255),
+        (0, 0, 255, 255),
+        (255, 255, 0, 255),
+        (0, 255, 255, 255),
+        (255, 0, 255, 255),
     ];
 
     let chunk_colors: Vec2D<(u8, u8, u8, u8)> = Vec2D {
-        data: flooded_mask.data.iter()
-            .map(|&flood_val| match flood_val{
+        data: flooded_mask
+            .data
+            .iter()
+            .map(|&flood_val| match flood_val {
                 None => (0, 0, 0, 0),
-                Some(val) => colors[(val%6) as usize],
+                Some(val) => colors[(val % 6) as usize],
             })
             .collect(),
         w: pixels.w,
@@ -56,6 +56,4 @@ fn main() {
 
     let chunk_colors_image_output = image_reader::make_image_from_vec(chunk_colors);
     chunk_colors_image_output.save("chunks.png").unwrap();
-
-
 }
