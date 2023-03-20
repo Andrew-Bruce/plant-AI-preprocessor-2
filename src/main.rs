@@ -22,50 +22,68 @@ fn draw_square(
     }
 }
 
-fn bloat_mask(mask: &Vec2D<bool>) -> Vec2D<bool> {
-    for y in 0..mask.h {
-        for x in 0..mask.w {
-            let num_neighbors: u8 = (-1isize..=1)
-                .map(|dy| {
-                    (-1isize..=1)
-                        .filter(|dx| {
-                            mask.in_bounds(
-                                dx + isize::try_from(x).unwrap(),
-                                dy + isize::try_from(y).unwrap(),
-                            )
-                        })
-                        .map(|dx| {
-                            let check_pos: (usize, usize) = (
-                                (isize::try_from(x).unwrap() + dx).try_into().unwrap(),
-                                (isize::try_from(y).unwrap() + dy).try_into().unwrap(),
-                            );
+fn bloat_mask_one_iter(mask: &Vec2D<bool>) -> Vec2D<bool> {
+    let new_mask: Vec<bool> = (0..mask.h)
+        .flat_map(|y| {
+            (0..mask.w)
+                .map(|x| {
+                    let num_neighbors: u8 = (-1isize..=1)
+                        .map(|dy| {
+                            (-1isize..=1)
+                                .filter(|dx| {
+                                    mask.in_bounds(
+                                        dx + isize::try_from(x).unwrap(),
+                                        dy + isize::try_from(y).unwrap(),
+                                    )
+                                })
+                                .map(|dx| {
+                                    let check_pos: (usize, usize) = (
+                                        (isize::try_from(x).unwrap() + dx).try_into().unwrap(),
+                                        (isize::try_from(y).unwrap() + dy).try_into().unwrap(),
+                                    );
 
-                            match mask[check_pos] {
-                                true => 1u8,
-                                false => 0u8,
-                            }
+                                    match mask[check_pos] {
+                                        true => 1u8,
+                                        false => 0u8,
+                                    }
+                                })
+                                .sum::<u8>()
                         })
-                        .sum::<u8>()
+                        .sum();
+                    num_neighbors > 4 || mask[(x, y)]
                 })
-                .sum();
-        }
+                .collect::<Vec<bool>>()
+        })
+        .collect();
+
+    Vec2D {
+        data: new_mask,
+        w: mask.w,
+        h: mask.h,
+    }
+}
+fn bloat_mask(mask: Vec2D<bool>, num_iters: u32) -> Vec2D<bool> {
+    if num_iters == 0 {
+        return mask;
     }
 
-    return todo!();
+    bloat_mask(bloat_mask_one_iter(&mask), num_iters - 1)
 }
-
 fn main() {
     let pixels: Vec2D<(u8, u8, u8, u8)> = image_reader::read_image_into_vec("plant4.jpg");
 
-    let image_mask: Vec2D<bool> = bloat_mask(&Vec2D {
-        data: pixels
-            .data
-            .iter()
-            .map(|&x| green_masking::pixel_green_enough(x))
-            .collect(),
-        w: pixels.w,
-        h: pixels.h,
-    });
+    let image_mask: Vec2D<bool> = bloat_mask(
+        Vec2D {
+            data: pixels
+                .data
+                .iter()
+                .map(|&x| green_masking::pixel_green_enough(x))
+                .collect(),
+            w: pixels.w,
+            h: pixels.h,
+        },
+        20,
+    );
 
     let mut masked_image: Vec2D<(u8, u8, u8, u8)> = Vec2D {
         data: zip(pixels.data.iter(), image_mask.data.iter())
@@ -99,7 +117,7 @@ fn main() {
         h: pixels.h,
     };
 
-    for chunk in chunks {
+    for chunk in chunks.iter().filter(|info| info.num_pixels > 200) {
         draw_square(&mut masked_image, chunk.top_left, chunk.bot_right);
     }
 
