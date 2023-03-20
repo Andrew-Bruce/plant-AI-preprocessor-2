@@ -1,9 +1,10 @@
 use crate::andy_vectors::Vec2D;
 use std::cmp;
-struct FloodChunkInfo {
+pub struct FloodChunkInfo {
     num_pixels: u64,
     top_left: (usize, usize),
     bot_right: (usize, usize),
+    val: u32,
 }
 
 fn flood_from_pixel(
@@ -18,6 +19,7 @@ fn flood_from_pixel(
             num_pixels: 0,
             top_left: pos,
             bot_right: pos,
+            val: value,
         };
     }
 
@@ -47,5 +49,29 @@ fn flood_from_pixel(
         num_pixels: num_flooded,
         top_left: (top_left_x, top_left_y),
         bot_right: (bot_right_x, bot_right_y),
+        val: value,
     }
+}
+
+pub fn flood_mask(mask: Vec2D<bool>) -> (Vec<FloodChunkInfo>, Vec2D<Option<u32>>){
+    let mut output: Vec2D<Option<u32>> = Vec2D{
+        data: vec![None; mask.w*mask.h],
+        w: mask.w,
+        h: mask.h,
+    };
+
+    let mut curr_val = 0;
+    let mut chunks: Vec<FloodChunkInfo> = vec!();
+
+    for y in 0..mask.h {
+        for x in 0..mask.w {
+            let pos = (x, y);
+            if mask[pos] {
+                let chunk: FloodChunkInfo = flood_from_pixel(&mask, (x, y), curr_val, &mut output);
+                chunks.push(chunk);
+                curr_val += 1;
+            }
+        }
+    }
+    (chunks, output)
 }
