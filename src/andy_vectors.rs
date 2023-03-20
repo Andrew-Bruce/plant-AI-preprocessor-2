@@ -43,7 +43,7 @@ impl<T> Index<(usize, usize)> for Vec2D<T> {
     }
 }
 impl<T> IndexMut<(usize, usize)> for Vec2D<T> {
-    fn index_mut<'a>(&'a mut self, index: (usize, usize)) -> &mut Self::Output {
+    fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
         let i = self.get_index(index.0, index.1).unwrap();
         &mut self.data[i] 
     }

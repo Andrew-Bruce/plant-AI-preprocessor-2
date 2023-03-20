@@ -7,7 +7,7 @@ struct FloodChunkInfo{
 }
 
 fn flood_from_pixel(mask: &Vec2D<bool>, pos: (usize, usize), value: u32, output: &mut Vec2D<Option<u32>>) -> FloodChunkInfo{
-    assert!(output[pos] == None || output[pos] == Some(value)); 
+    assert!(output[pos].is_none() || output[pos] == Some(value)); 
     if !mask[pos] {
         return FloodChunkInfo{
             num_pixels: 0,
@@ -38,7 +38,7 @@ fn flood_from_pixel(mask: &Vec2D<bool>, pos: (usize, usize), value: u32, output:
             }
         }
     }
-    return FloodChunkInfo{
+    FloodChunkInfo{
         num_pixels: num_flooded,
         top_left: (top_left_x, top_left_y),
         bot_right: (bot_right_x, bot_right_y),
