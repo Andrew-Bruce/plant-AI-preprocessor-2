@@ -48,18 +48,17 @@ fn flood_from_pixel_bfs(
             bot_right_x = cmp::max(bot_right_x, x);
             bot_right_y = cmp::max(bot_right_y, y);
 
-            for dy in -1i64..=1 {
-                for dx in -1i64..=1 {
-                    let new_x: i64 = <usize as TryInto<i64>>::try_into(x).unwrap() + dx;
-                    let new_y: i64 = <usize as TryInto<i64>>::try_into(y).unwrap() + dy;
-                    if new_x < 0 || new_y < 0 {
-                        continue;
-                    }
-                    let new_pos: (usize, usize) =
-                        (new_x.try_into().unwrap(), new_y.try_into().unwrap());
-                    if !mask.is_in_range(new_pos.0, new_pos.1) {
-                        continue;
-                    }
+            for dy in -1isize..=1 {
+                for dx in (-1isize..=1).filter(|dx| {
+                    mask.in_bounds(
+                        dx + isize::try_from(x).unwrap(),
+                        dy + isize::try_from(y).unwrap(),
+                    )
+                }) {
+                    let new_pos: (usize, usize) = (
+                        (isize::try_from(x).unwrap() + dx).try_into().unwrap(),
+                        (isize::try_from(y).unwrap() + dy).try_into().unwrap(),
+                    );
                     to_search.push_back(new_pos);
                 }
             }

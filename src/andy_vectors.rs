@@ -12,12 +12,16 @@ impl<T> Vec2D<T> {
         assert!(data.len() == (w * h), "data dimentions mismatch");
         Vec2D { data, w, h }
     }
-    pub fn is_in_range(&self, x: usize, y: usize) -> bool {
-        x < self.w && y < self.h
+    fn is_in_range(&self, index: (usize, usize)) -> bool {
+        index.0 < self.w && index.1 < self.h
     }
-    fn get_index(&self, x: usize, y: usize) -> Option<usize> {
-        if self.is_in_range(x, y) {
-            Some(x + (self.w * y))
+    pub fn in_bounds(&self, x: isize, y: isize) -> bool {
+        (x >= 0 && x < self.w.try_into().unwrap()) && (y >= 0 && y < self.h.try_into().unwrap())
+    }
+
+    fn get_index(&self, index: (usize, usize)) -> Option<usize> {
+        if self.is_in_range(index) {
+            Some(index.0 + (self.w * index.1))
         } else {
             None
         }
@@ -38,13 +42,13 @@ impl<T> Vec2D<T> {
 impl<T> Index<(usize, usize)> for Vec2D<T> {
     type Output = T;
     fn index(&self, index: (usize, usize)) -> &Self::Output {
-        let i = self.get_index(index.0, index.1).unwrap();
+        let i = self.get_index(index).unwrap();
         &self.data[i]
     }
 }
 impl<T> IndexMut<(usize, usize)> for Vec2D<T> {
     fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
-        let i = self.get_index(index.0, index.1).unwrap();
+        let i = self.get_index(index).unwrap();
         &mut self.data[i]
     }
 }

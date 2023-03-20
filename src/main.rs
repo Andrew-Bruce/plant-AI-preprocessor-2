@@ -5,35 +5,67 @@ mod image_splitter;
 use crate::andy_vectors::Vec2D;
 use std::iter::zip;
 
+const SQUARE_COLOR: (u8, u8, u8, u8) = (255, 0, 0, 255);
+
 fn draw_square(
     img: &mut Vec2D<(u8, u8, u8, u8)>,
     top_left: (usize, usize),
     bot_right: (usize, usize),
 ) {
     for x in top_left.0..bot_right.0 {
-        img[(x, top_left.1)] = (255, 0, 0, 255);
-        img[(x, bot_right.1)] = (255, 0, 0, 255);
+        img[(x, top_left.1)] = SQUARE_COLOR;
+        img[(x, bot_right.1)] = SQUARE_COLOR;
     }
     for y in top_left.1..bot_right.1 {
-        img[(top_left.0, y)] = (255, 0, 0, 255);
-        img[(bot_right.0, y)] = (255, 0, 0, 255);
+        img[(top_left.0, y)] = SQUARE_COLOR;
+        img[(bot_right.0, y)] = SQUARE_COLOR;
     }
+}
+
+fn bloat_mask(mask: &Vec2D<bool>) -> Vec2D<bool> {
+    for y in 0..mask.h {
+        for x in 0..mask.w {
+            let num_neighbors: u8 = (-1isize..=1)
+                .map(|dy| {
+                    (-1isize..=1)
+                        .filter(|dx| {
+                            mask.in_bounds(
+                                dx + isize::try_from(x).unwrap(),
+                                dy + isize::try_from(y).unwrap(),
+                            )
+                        })
+                        .map(|dx| {
+                            let check_pos: (usize, usize) = (
+                                (isize::try_from(x).unwrap() + dx).try_into().unwrap(),
+                                (isize::try_from(y).unwrap() + dy).try_into().unwrap(),
+                            );
+
+                            match mask[check_pos] {
+                                true => 1u8,
+                                false => 0u8,
+                            }
+                        })
+                        .sum::<u8>()
+                })
+                .sum();
+        }
+    }
+
+    return todo!();
 }
 
 fn main() {
     let pixels: Vec2D<(u8, u8, u8, u8)> = image_reader::read_image_into_vec("plant4.jpg");
 
-    let masked_vec: Vec<bool> = pixels
-        .data
-        .iter()
-        .map(|&x| green_masking::pixel_green_enough(x))
-        .collect();
-
-    let image_mask: Vec2D<bool> = Vec2D {
-        data: masked_vec,
+    let image_mask: Vec2D<bool> = bloat_mask(&Vec2D {
+        data: pixels
+            .data
+            .iter()
+            .map(|&x| green_masking::pixel_green_enough(x))
+            .collect(),
         w: pixels.w,
         h: pixels.h,
-    };
+    });
 
     let mut masked_image: Vec2D<(u8, u8, u8, u8)> = Vec2D {
         data: zip(pixels.data.iter(), image_mask.data.iter())
