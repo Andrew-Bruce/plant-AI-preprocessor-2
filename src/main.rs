@@ -1,6 +1,7 @@
 mod andy_vectors;
 mod green_masking;
 mod image_reader;
+mod image_splitter;
 use crate::andy_vectors::Vec2D;
 use std::iter::zip;
 fn main() {

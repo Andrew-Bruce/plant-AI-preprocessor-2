@@ -1,4 +1,5 @@
 use core::ops::Index;
+use core::ops::IndexMut;
 
 pub struct Vec2D<T> {
     pub data: Vec<T>,
@@ -11,8 +12,11 @@ impl<T> Vec2D<T> {
         assert!(data.len() == (w * h), "data dimentions mismatch");
         Vec2D { data, w, h }
     }
+    pub fn is_in_range(&self, x: usize, y: usize) -> bool{
+        x < self.w && y < self.h
+    }
     fn get_index(&self, x: usize, y: usize) -> Option<usize> {
-        if x < self.w && y < self.h {
+        if self.is_in_range(x, y) {
             Some(x + (self.w * y))
         } else {
             None
@@ -34,6 +38,13 @@ impl<T> Vec2D<T> {
 impl<T> Index<(usize, usize)> for Vec2D<T> {
     type Output = T;
     fn index(&self, index: (usize, usize)) -> &Self::Output {
-        &self.data[self.get_index(index.0, index.1).unwrap()]
+        let i = self.get_index(index.0, index.1).unwrap();
+        &self.data[i]
+    }
+}
+impl<T> IndexMut<(usize, usize)> for Vec2D<T> {
+    fn index_mut<'a>(&'a mut self, index: (usize, usize)) -> &mut Self::Output {
+        let i = self.get_index(index.0, index.1).unwrap();
+        &mut self.data[i] 
     }
 }
