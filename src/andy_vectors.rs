@@ -12,7 +12,7 @@ impl<T> Vec2D<T> {
         assert!(data.len() == (w * h), "data dimentions mismatch");
         Vec2D { data, w, h }
     }
-    pub fn is_in_range(&self, x: usize, y: usize) -> bool{
+    pub fn is_in_range(&self, x: usize, y: usize) -> bool {
         x < self.w && y < self.h
     }
     fn get_index(&self, x: usize, y: usize) -> Option<usize> {
@@ -45,6 +45,6 @@ impl<T> Index<(usize, usize)> for Vec2D<T> {
 impl<T> IndexMut<(usize, usize)> for Vec2D<T> {
     fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
         let i = self.get_index(index.0, index.1).unwrap();
-        &mut self.data[i] 
+        &mut self.data[i]
     }
 }
