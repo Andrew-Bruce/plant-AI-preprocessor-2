@@ -26,18 +26,15 @@ impl<T> Vec2D<T> {
             None
         }
     }
-    /*
-    pub fn get_row(&self, y: usize) -> &[T]{
-        let start: usize = self.get_index(0, y).unwrap();
-        let end:   usize = start + self.w;
-        return &self.data[start..end];
+
+    pub fn get_row(&self, y: usize) -> &[T] {
+        let start: usize = self.get_index((0, y)).unwrap();
+        let end: usize = start + self.w;
+        &self.data[start..end]
     }
-    pub fn iter_rows(&self) -> impl Iterator<Item = &[T]>{
-        return (0..self.h)
-            .map(|y| self.get_row(y))
-            .into_iter();
+    pub fn iter_rows(&self) -> impl Iterator<Item = &[T]> {
+        (0..self.h).map(|y| self.get_row(y))
     }
-    */
 }
 impl<T> Index<(usize, usize)> for Vec2D<T> {
     type Output = T;
