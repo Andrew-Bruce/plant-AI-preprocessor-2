@@ -81,9 +81,7 @@ fn main() {
     let masked_image_output = image_reader::make_image_from_vec(masked_image);
     masked_image_output.save("out.png").unwrap();
 
-    chunk_saver::save_chunks(
-        &chunks.iter().filter(|info| info.num_pixels > 200).collect(),
-        &flooded_mask,
-        &pixels,
-    );
+    let big_chunks: Vec<&image_splitter::FloodedChunkInfo> =
+        chunks.iter().filter(|info| info.num_pixels > 200).collect();
+    chunk_saver::save_chunks(&big_chunks, &flooded_mask, &pixels);
 }
