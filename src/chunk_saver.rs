@@ -45,7 +45,7 @@ fn save_chunk(chunk_image: Vec2D<(u8, u8, u8, u8)>, filename: String) {
 }
 
 pub fn save_chunks(
-    chunks_to_save: &[&FloodedChunkInfo],
+    chunks_to_save: Vec<&FloodedChunkInfo>,
     flooded_mask: &Vec2D<Option<u32>>,
     pixels: &Vec2D<(u8, u8, u8, u8)>,
 ) {

@@ -26,7 +26,6 @@ fn draw_square(
 
 fn main() {
     let pixels: Vec2D<(u8, u8, u8, u8)> = image_reader::read_image_into_vec("plant4.jpg");
-
     let image_mask: Vec2D<bool> = mask_bloating::bloat_mask(
         Vec2D {
             data: pixels
@@ -83,5 +82,5 @@ fn main() {
 
     let big_chunks: Vec<&image_splitter::FloodedChunkInfo> =
         chunks.iter().filter(|info| info.num_pixels > 200).collect();
-    chunk_saver::save_chunks(&big_chunks, &flooded_mask, &pixels);
+    chunk_saver::save_chunks(big_chunks, &flooded_mask, &pixels);
 }
